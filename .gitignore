@@ -127,3 +127,20 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+# project-specific
+/__pycache__
+**/data/*
+**/__pycache__/
+env
+env/*
+**/client_secrets.json
+**/key.py
+**/dask-worker-space/
+/data
+
+
+# pulumi-specific
+*.pyc
+venv/
