@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "workflows"
+version = "0.1.0"
+description = "base project for ml-workflows"
+authors = ["Brontomerus <brandon.donelan@outlook.com>"]
+license = "BSD 3-Clause \"New\" or \"Revised\" License"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+prefect = "^0.14.12"
+dask = {extras = ["complete"], version = "^2021.3.0"}
+dask-cloudprovider = "^2021.3.0"
+boto3 = "^1.17.26"
+s3fs = "^0.5.2"
+pyarrow = "^3.0.0"
+pandas = "^1.2.3"
+dask-ml = "^1.8.0"
+scikit-learn = "^0.24.1"
+
+[tool.poetry.dev-dependencies]
+awscli = "^1.19.26"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
