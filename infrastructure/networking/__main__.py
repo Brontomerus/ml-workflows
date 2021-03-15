@@ -5,13 +5,11 @@
 
 
 import pulumi
-from pulumi_aws import s3
-from pulumi_aws import aws
-
+import pulumi_aws as aws
 
 
 # Create an AWS resource (S3 Bucket)
-bucket = s3.Bucket('networking-bucket')
+bucket = aws.s3.Bucket('networking-bucket')
 
 # Export the name of the bucket
 pulumi.export('networking-bucket-',  bucket.id)
@@ -83,7 +81,7 @@ internet_gateway = aws.ec2.InternetGateway(
 
 routetable_public = aws.ec2.RouteTable(
     resource_name='workflows-public-routetable',
-    vpc_id=shared_vpc.id,
+    vpc_id=workflows.id,
     routes=[{
             "cidrBlock": "0.0.0.0/0",
             "gatewayId": internet_gateway.id
@@ -161,7 +159,7 @@ nat_gateway = aws.ec2.NatGateway(
 
 routetable_application = aws.ec2.RouteTable(
     resource_name='workflows route table',
-    vpc_id=shared_vpc.id,
+    vpc_id=workflows.id,
     routes=[{
             "cidrBlock": "0.0.0.0/0",
             "gatewayId": nat_gateway.id
@@ -188,22 +186,22 @@ routetable_private_1_association = aws.ec2.RouteTableAssociation(
 
 
 
-# Create an IAM role that can be used by our service's task.
-role = aws.iam.Role('task-exec-role',
-	assume_role_policy=json.dumps({
-		'Version': '2008-10-17',
-		'Statement': [{
-			'Sid': '',
-			'Effect': 'Allow',
-			'Principal': {
-				'Service': 'ecs-tasks.amazonaws.com'
-			},
-			'Action': 'sts:AssumeRole',
-		}]
-	}),
-)
+# # Create an IAM role that can be used by our service's task.
+# role = aws.iam.Role('task-exec-role',
+# 	assume_role_policy=json.dumps({
+# 		'Version': '2008-10-17',
+# 		'Statement': [{
+# 			'Sid': '',
+# 			'Effect': 'Allow',
+# 			'Principal': {
+# 				'Service': 'ecs-tasks.amazonaws.com'
+# 			},
+# 			'Action': 'sts:AssumeRole',
+# 		}]
+# 	}),
+# )
 
-rpa = aws.iam.RolePolicyAttachment('task-exec-policy',
-	role=role.name,
-	policy_arn='arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy',
-)
+# rpa = aws.iam.RolePolicyAttachment('task-exec-policy',
+# 	role=role.name,
+# 	policy_arn='arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy',
+# )
