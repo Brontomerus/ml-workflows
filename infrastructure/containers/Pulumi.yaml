@@ -1,0 +1,6 @@
+name: containers
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: Elastic Container layer for project

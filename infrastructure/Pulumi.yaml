@@ -1,6 +1,0 @@
-name: ml-workflows
-runtime:
-  name: python
-  options:
-    virtualenv: venv
-description: cloud ml workflows using Dask, Prefect, and AWS

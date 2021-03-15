@@ -1,0 +1,6 @@
+name: load-balancers
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: Load Balancing layer for project
