@@ -17,4 +17,8 @@ Default output format [None]: json
 If you have multiple AWS profiles (like me), then you'll need to whip up a quick environment variable to avoid messing up and throwing this into the wrong AWS Account... which would __not__ be ideal:
 ```bash
 $ export AWS_PROFILES=my-profile-name
+# OR export only the config vars its looking for
+$ export AWS_ACCESS_KEY_ID="anaccesskey"
+$ export AWS_SECRET_ACCESS_KEY="asecretkey"
+$ export AWS_DEFAULT_REGION="us-east-2"
 ```

@@ -78,7 +78,6 @@ internet_gateway = aws.ec2.InternetGateway(
     }
 )
 
-
 routetable_public = aws.ec2.RouteTable(
     resource_name='workflows-public-routetable',
     vpc_id=workflows.id,
@@ -157,8 +156,8 @@ nat_gateway = aws.ec2.NatGateway(
 )
 
 
-routetable_application = aws.ec2.RouteTable(
-    resource_name='workflows route table',
+routetable_private_1 = aws.ec2.RouteTable(
+    resource_name='workflows-private-1-routetable',
     vpc_id=workflows.id,
     routes=[{
             "cidrBlock": "0.0.0.0/0",
@@ -169,7 +168,7 @@ routetable_application = aws.ec2.RouteTable(
 routetable_private_1_association = aws.ec2.RouteTableAssociation(
     resource_name='workflows route table association',
     subnet_id=workflows_private_1.id,
-    route_table_id=routetable_application
+    route_table_id=routetable_private_1
 )
 
 

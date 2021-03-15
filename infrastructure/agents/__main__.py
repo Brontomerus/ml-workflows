@@ -33,13 +33,28 @@ def decode_key(key):
 private_key = config.require_secret('privateKey').apply(decode_key)
 private_key_passphrase = config.get_secret('privateKeyPassphrase')
 
-# Create a new security group that permits SSH and web access.
-secgrp = aws.ec2.SecurityGroup('secgrp',
-    description='Foo',
+
+size = 't2.micro'
+ami = aws.get_ami(most_recent="true",
+                  owners=["137112412989"],
+                  filters=[{"name":"name","values":["amzn-ami-hvm-*"]}])
+
+group = aws.ec2.SecurityGroup('webserver-secgrp',
+    description='Enable HTTP access',
     ingress=[
-        aws.ec2.SecurityGroupIngressArgs(protocol='SSH', from_port=22, to_port=22, cidr_blocks=['0.0.0.0/0'])
-    ],
-)
+        { 'protocol': 'tcp', 'from_port': 22, 'to_port': 22, 'cidr_blocks': ['0.0.0.0/0'] }
+    ])
+
+server = aws.ec2.Instance('webserver-www',
+    instance_type=size,
+    vpc_security_group_ids=[group.id], # reference security group from above
+    ami=ami.id)
+
+pulumi.export('publicIp', server.public_ip)
+pulumi.export('publicHostName', server.public_dns)
+
+
+
 
 
 
