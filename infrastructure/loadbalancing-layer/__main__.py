@@ -21,48 +21,56 @@ bucket = s3.Bucket('load-balancer-bucket-')
 pulumi.export('bucket_name', bucket.id)
 
 
-# Read back the default VPC and public subnets, which we will use.
-vpc = network_layer_stack.require_output("vcp_id")
+# Read back the project VPC and subnets id's that were set up in the network-layer-{env}, which we will use.
+vpc_id = network_layer_stack.require_output("vcp_id")
+private_subnets = network_layer_stack.require_output("private_subnet_ids"))
+public_subnets = network_layer_stack.require_output("public_subnet_ids"))
 
-vpc_subnets = aws.ec2.get_subnet_ids(vpc_id=network_layer_stack.require_output("vcp_id"))
+# un-stringify the lists
+private_subnets = json.loads(private_subnets)
+public_subnets = json.loads(public_subnets)
 
-# Create a SecurityGroup that permits HTTP ingress and unrestricted egress.
-group = aws.ec2.SecurityGroup('web-secgrp',
-	vpc_id=vpc.id,
-	description='Enable HTTP access',
-	ingress=[aws.ec2.SecurityGroupIngressArgs(
-		protocol='tcp',
-		from_port=80,
-		to_port=80,
-		cidr_blocks=['0.0.0.0/0'],
-	)],
-  	egress=[aws.ec2.SecurityGroupEgressArgs(
-		protocol='-1',
-		from_port=0,
-		to_port=0,
-		cidr_blocks=['0.0.0.0/0'],
-	)],
-)
 
-# Create a load balancer to listen for HTTP traffic on port 80.
-alb = aws.lb.LoadBalancer('app-lb',
-	security_groups=[group.id],
-	subnets=vpc_subnets.ids,
-)
+# TODO: need to add in the security groups for the internal ALB and all that jazz
 
-atg = aws.lb.TargetGroup('app-tg',
+
+internal_alb = aws.lb.LoadBalancer(
+	"workflows-private-alb",
+	internal=True,
+    load_balancer_type="application",
+    subnet_mappings=[
+        aws.lb.LoadBalancerSubnetMappingArgs(
+            subnet_id=private_subnet_ids[0],
+            private_ipv4_address="10.0.2.3",
+        ),
+        aws.lb.LoadBalancerSubnetMappingArgs(
+            subnet_id=private_subnet_ids[1],
+            private_ipv4_address="10.0.3.3",
+        ),
+    ]
+	subnets=private_subnet_ids,
+	# security_groups=,
+	tags={"Name": "workflows"})
+
+
+dummy_target_group = aws.lb.TargetGroup(
+	"workflows-alb-dummy-target-group",
 	port=80,
 	protocol='HTTP',
 	target_type='ip',
-	vpc_id=vpc.id,
+	vpc_id=vpc_id,
 )
 
-wl = aws.lb.Listener('web',
-	load_balancer_arn=alb.arn,
+alb_listener = aws.lb.Listener(
+	"workflows-alb-listener",
+	load_balancer_arn=internal_alb.arn,
 	port=80,
-	default_actions=[aws.lb.ListenerDefaultActionArgs(
-		type='forward',
-		target_group_arn=atg.arn,
-	)],
-)
+	default_actions=[
+		aws.lb.ListenerDefaultActionArgs(
+			type='forward',
+			target_group_arn=dummy_target_group.arn,
+		)],
+	)
+
+
 
