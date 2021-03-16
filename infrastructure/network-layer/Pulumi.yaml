@@ -1,0 +1,6 @@
+name: network-layer
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: network layer for ml-workflows

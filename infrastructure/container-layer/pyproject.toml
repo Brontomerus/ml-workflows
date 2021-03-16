@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "load-balancers"
+name = "container-layer"
 version = "0.1.0"
-description = ""
+description = "IaC for ECS & Docker Resources inml-workflows project"
 authors = ["Brontomerus <brandon.donelan@outlook.com>"]
 license = "BSD 3-Clause License"
 
@@ -9,9 +9,10 @@ license = "BSD 3-Clause License"
 python = "^3.8"
 pulumi = ">=2.0.0,<3.0.0"
 pulumi-aws = ">=3.2.0,<4.0.0"
+pulumi-docker = ">=2.8.0, <3.0.0"
 
 [tool.poetry.dev-dependencies]
-awscli = "^1.19.27"
+awscli = "^1.19.28"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

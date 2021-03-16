@@ -1,0 +1,6 @@
+name: agent-layer
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: IaC for Prefect Agents for ml-workflows project

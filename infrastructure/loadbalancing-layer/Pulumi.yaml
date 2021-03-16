@@ -1,0 +1,6 @@
+name: loadbalancing-layer
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: IaC for load balancing layer in ml-workflows

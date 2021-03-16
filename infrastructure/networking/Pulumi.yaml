@@ -1,6 +1,0 @@
-name: networking
-runtime:
-  name: python
-  options:
-    virtualenv: venv
-description: IaC for defining the project networking layer

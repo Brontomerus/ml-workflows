@@ -1,0 +1,4 @@
+config:
+  aws:region: us-east-2
+  network-layer:environment: dev
+  

@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "agents"
+name = "network-layer"
 version = "0.1.0"
-description = ""
+description = "networking layer IaC for ml-workflows"
 authors = ["Brontomerus <brandon.donelan@outlook.com>"]
 license = "BSD 3-Clause License"
 
@@ -9,10 +9,9 @@ license = "BSD 3-Clause License"
 python = "^3.8"
 pulumi = ">=2.0.0,<3.0.0"
 pulumi-aws = ">=3.2.0,<4.0.0"
-pulumi-docker = "^2.8.1"
 
 [tool.poetry.dev-dependencies]
-awscli = "^1.19.27"
+awscli = "^1.19.28"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

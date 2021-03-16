@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "loadbalancing-layer"
+version = "0.1.0"
+description = "IaC for load balancing layer in ml-workflows project"
+authors = ["Brontomerus <brandon.donelan@outlook.com>"]
+license = "BSD 3-Clause License"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pulumi = ">=2.0.0,<3.0.0"
+pulumi-aws = ">=3.2.0,<4.0.0"
+
+[tool.poetry.dev-dependencies]
+awscli = "^1.19.28"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

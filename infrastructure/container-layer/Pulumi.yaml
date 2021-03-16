@@ -1,0 +1,6 @@
+name: container-layer
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: IaC for ECS & Docker Resources in ml-workflows project

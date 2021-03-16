@@ -5,16 +5,26 @@ import pulumi
 import json
 from pulumi_aws import s3
 
+
+
+
+config = pulumi.Config()
+
+network_layer_stack = config.require('network-layer-stack')
+
+
+
 # Create an AWS resource (S3 Bucket)
-bucket = s3.Bucket('my-bucket')
+bucket = s3.Bucket('load-balancer-bucket-')
 
 # Export the name of the bucket
 pulumi.export('bucket_name', bucket.id)
 
 
 # Read back the default VPC and public subnets, which we will use.
-vpc = aws.ec2.get_vpc()
-vpc_subnets = aws.ec2.get_subnet_ids(vpc_id=vpc.id)
+vpc = network_layer_stack.require_output("vcp_id")
+
+vpc_subnets = aws.ec2.get_subnet_ids(vpc_id=network_layer_stack.require_output("vcp_id"))
 
 # Create a SecurityGroup that permits HTTP ingress and unrestricted egress.
 group = aws.ec2.SecurityGroup('web-secgrp',

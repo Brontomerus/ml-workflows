@@ -1,5 +1,6 @@
 # ml-werkflows
-A project to provide an easy way to get started building distributed environments for machine learning workflows in AWS using Prefect and Dask.
+
+A project to provide an easy way to get started building distributed environments for machine learning workflows in AWS using [__Prefect__](https://www.prefect.io/) for dataflow automation capabilities (scheduling, CI/CD, ETL Framework, etc) and [__Dask__](https://docs.dask.org/en/latest/why.html) for a providing distributed compute engine. This work is facilitated by managed python environments using [__Poetry__](https://python-poetry.org/docs/basic-usage/) for package management and [__Pulumi__](https://www.pulumi.com/docs/) for defining the cloud architecture using Infrastructure-as-Code. Further, I leverage [__Dask-CloudProvider__](https://cloudprovider.dask.org/en/latest/) to further add to the IaC capabilities and to easily harness the phenomenal "temporary cluster" approach that I've come to absolutely love for its low-cost but high-performance serverless capabilities.
 
 Using a pythonic approach, I want to build a bootstrap resource for enabling anyone to quickly get started using Dask and Prefect for distributed data processing and operatiing ML resources in cloud environments. I have created a process within an AWS environment for a separate company I worked for, but wanted to then create another project for a separate company following a similar approach. To enable adoption of this awesome tech stack, I decided to embark on a project that will enable others to follow a similar approach with ease, as well as allowing myself a project to build off for other endeavors of mine.
 
@@ -7,6 +8,25 @@ The idea is to use Pulumi Infrastructure-as-Code (IaC) to define and manage a se
 
 1. [infrastructure/](infrastructure/): The IaC for quickly building the required infrastructure in an AWS cloud environment.
 2. [workflows/](workflows/): The modeling examples as well as the prefect workflow logic.
+
+
+
+# Architecture
+
+The project architecture is defined as Pulumi Infrastructure-as-Code (IaC), and runs on an AWS environment. 
+
+
+
+# Modeling
+
+This isn't your grandpa's scikit-learn model, but (but sklearn _is_ a fantastic and ellegant data science library). I used dask-ml to build my feature engineering and predictive model for this project to demonstrate a scalable approach you could take to deploy a model using this framework. The folks at pydata working on scikit-learn are a heck of a lot smarter than most people regarding the data science ecosystem, and there's a reason they began building Dask. While scikit-learn is fast, highly diversified, and portable, dask-ml is certainly a bit more rigid. The reason for using dask-ml is simply that it allows us an easy way to __scale__ our model to serve very large batch sizes. GB of records? Try PB of records! 
+
+Other ways to build scalable models are certainly out there, namely in Spark ML. Spark ML is easily combined with PySpark to build scalable infrastructure on the ever-popular Apache Spark, and I couldn't talk all about dask/dask-ml without mentioning that alternative. At the end of the day, do what you are the most comfortable with supporting - because systems almost _always_ live much longer at your company than the people who build them.
+
+
+# Last Remark
+
+While I enjoyed the modeling part of this project, it was perhaps substantially less detailed than the architectural considerations in this project. The modeling aspect really came last in my focus on this project because I really wanted to focus on _where_ the code was running and less on _what_ the code was running on this project. While the ROI and predictive quality of a model will usually come first for building something like this out, I wanted to focus on making this a reusable base-template for future use. Thus, the architectural components and the ease of reproducing those components came first for this project.
 
 
 

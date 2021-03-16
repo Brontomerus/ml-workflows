@@ -1,0 +1,4 @@
+config:
+  aws:region: us-east-2
+  loadbalancing-layer:environment: dev
+  loadbalancing-layer:network-layer-stack: dev

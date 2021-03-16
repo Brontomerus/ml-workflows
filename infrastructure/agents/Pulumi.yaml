@@ -1,7 +1,0 @@
-name: agents
-runtime:
-  name: python
-  options:
-    virtualenv: venv
-description: IaC for defining physical servers/containers for operating prefect agents
-  within our system
