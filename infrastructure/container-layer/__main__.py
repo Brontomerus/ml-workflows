@@ -14,3 +14,5 @@ pulumi.export('bucket_name', bucket.id)
 # Create an ECS cluster to run a container-based service.
 cluster = aws.ecs.Cluster('cluster')
 
+# IAM Roles/Policies Defined:
+# ...
