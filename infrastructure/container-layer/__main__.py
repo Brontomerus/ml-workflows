@@ -20,13 +20,14 @@ network_layer = pulumi.StackReference(f'{pulumi_account}/network-layer/{env}')
 
 # Read back the project VPC and subnets id's that were set up in the network-layer-{env}, which we will use.
 vpc_id = network_layer.require_output('vcp_id')
-private_subnets = network_layer.require_output('private_subnet_ids')
-public_subnets = network_layer.require_output('public_subnet_ids')
-print(private_subnets)
-print(dir(private_subnets))
-# un-stringify the lists
-private_subnets = json.loads(private_subnets)
-public_subnets = json.loads(public_subnets)
+private_subnets_1 = network_layer.require_output('private_subnet_id_1')
+private_subnet_2 = network_layer.require_output('private_subnet_id_2')
+public_subnets_1 = network_layer.require_output('public_subnet_id_1')
+public_subnets_2 = network_layer.require_output('public_subnet_id_2')
+
+# # un-stringify the lists
+# private_subnets = json.loads(private_subnets)
+# public_subnets = json.loads(public_subnets)
 
 
 # Create an ECS cluster to run a container-based service.
@@ -51,7 +52,7 @@ ecs_execution_role = aws.iam.Role(
 
 ecs_execution_policy = aws.iam.RolePolicy(
     'ecs-execution-policy',
-    role=test_role.id,
+    role=ecs_execution_role.id,
     policy=json.dumps({
         'Version': '2012-10-17',
         'Statement': [{
@@ -97,7 +98,7 @@ ecs_task_role = aws.iam.Role(
 
 ecs_task_rpa = aws.iam.RolePolicyAttachment(
     'ecs-task-policy',
-	role=role.name,
+	role=ecs_task_role.name,
 	policy_arn='arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess',
 )
 
