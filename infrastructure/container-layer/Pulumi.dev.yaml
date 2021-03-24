@@ -1,2 +1,5 @@
 config:
   aws:region: us-east-2
+  container-layer:environment: dev
+  container-layer:network-layer-stack: dev
+  container-layer:user-account: Brontomerus

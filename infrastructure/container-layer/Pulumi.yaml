@@ -3,4 +3,17 @@ runtime:
   name: python
   options:
     virtualenv: venv
-description: IaC for ECS & Docker Resources in ml-workflows project
+description: IaC for Container and Dask-CloudProvider Resources
+template:
+  config:
+    aws:region:
+      description: The AWS region to deploy into.
+      default: us-east-2
+    network-layer-stack:
+      description: "(Required) The reference to the networking stack defining the staffolding on which the project will be deployed
+        (in the form <organization_or_user>/<projectName>/<stackName> e.g. myUsername/multicloud/dev)"
+      default: dev
+    user-account: 
+      description: "(Required) The user account name you are using for Pulumi."
+      default: Brontomerus
+    

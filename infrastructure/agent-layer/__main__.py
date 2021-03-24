@@ -1,5 +1,6 @@
 """An AWS Python Pulumi program"""
 # REF: https://github.com/pulumi/examples/blob/master/aws-py-webserver/__main__.py
+# or, https://www.pulumi.com/docs/tutorials/aws/ec2-webserver/
 # REF: https://github.com/pulumi/examples/blob/master/aws-py-ec2-provisioners/__main__.py
 
 

@@ -29,7 +29,6 @@ subnets = {
     "workflows-private-2": "10.0.3.0/24"
 }
 
-
 workflows = aws.ec2.Vpc(
     "workflows",
     enable_dns_hostnames=True,
@@ -151,7 +150,11 @@ routetable_private_2_association = aws.ec2.RouteTableAssociation(
 
 
 # export for downstream layers
-pulumi.export("vcp_id", vpc.id)
-pulumi.export('public_subnet_ids', [workflows_public_1.id, workflows_public_2.id])
-pulumi.export('private_subnet_ids', [workflows_private_1.id, workflows_private_2.id])
+pulumi.export("vcp_id", workflows.id)
+pulumi.export('public_subnet_1_id', workflows_public_1.id)
+pulumi.export('public_subnet_2_id', workflows_public_2.id)
+pulumi.export('private_subnet_1_id', workflows_private_1.id)
+pulumi.export('private_subnet_2_id', workflows_private_2.id)
+pulumi.export('subnets', subnets)
+
 pulumi.export("vpc_azs", [az.names[0], az.names[1]])
