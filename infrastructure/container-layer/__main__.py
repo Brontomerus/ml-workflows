@@ -112,7 +112,7 @@ workflows_dask_sg = aws.ec2.SecurityGroup(
 		protocol='tcp',
 		from_port=8786,
 		to_port=8787,
-		cidr_blocks=['10.0.2.0/24', '10.0.3.0/24'], # restricting it to our public / private subnets here since we don't need '0.0.0.0/0' for any public access like we'd need for an API in Fargate/ECS
+		cidr_blocks=['0.0.0.0/0']
 	)],
   	egress=[aws.ec2.SecurityGroupEgressArgs(
 		protocol='-1',
