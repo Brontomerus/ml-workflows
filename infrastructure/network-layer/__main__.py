@@ -108,14 +108,17 @@ workflows_gateway_eip_2 = aws.ec2.Eip(
     "workflows-gateway-eip-2",
     vpc=True)
 
+
+
+
 nat_gateway_1 = aws.ec2.NatGateway(
     "workflows-private-1-nat-gateway",
     allocation_id=workflows_gateway_eip_1.id,
-    subnet_id=workflows_private_1.id)
+    subnet_id=workflows_public_1.id)
 nat_gateway_2 = aws.ec2.NatGateway(
     "workflows-private-2-nat-gateway",
     allocation_id=workflows_gateway_eip_2.id,
-    subnet_id=workflows_private_2.id)
+    subnet_id=workflows_public_2.id)
 
 
 routetable_private_1 = aws.ec2.RouteTable(
