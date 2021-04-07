@@ -20,6 +20,7 @@ network_layer = pulumi.StackReference(f'{pulumi_account}/network-layer/{env}')
 
 # Read back the project VPC and subnets id's that were set up in the network-layer-{env}, which we will use.
 vpc_id = network_layer.require_output('vcp_id')
+vpc_azs = network_layer.require_output('vpc_azs')
 private_subnets_1 = network_layer.require_output('private_subnet_id_1')
 private_subnet_2 = network_layer.require_output('private_subnet_id_2')
 public_subnets_1 = network_layer.require_output('public_subnet_id_1')
@@ -35,8 +36,8 @@ cluster = aws.ecs.Cluster('ml-workflows')
 
 
 # IAM Roles/Policies Defined:
-ecs_execution_role = aws.iam.Role(
-    'ecs-execution-role',
+dask_ecs_execution_role = aws.iam.Role(
+    'dask-ecs-execution-role',
     description='Elastic Container Service Execution Policy for Dask Clusters',
 	assume_role_policy=json.dumps({
 		'Version': '2008-10-17',
@@ -50,9 +51,9 @@ ecs_execution_role = aws.iam.Role(
 		}]
 	}))
 
-ecs_execution_policy = aws.iam.RolePolicy(
-    'ecs-execution-policy',
-    role=ecs_execution_role.id,
+dask_ecs_execution_policy = aws.iam.RolePolicy(
+    'dask-ecs-execution-policy',
+    role=dask_ecs_execution_role.id,
     policy=json.dumps({
         'Version': '2012-10-17',
         'Statement': [{
@@ -82,8 +83,8 @@ ecs_execution_policy = aws.iam.RolePolicy(
     }))
 
 
-ecs_task_role = aws.iam.Role(
-    'ecs-task-role',
+ecs_s3_task_role = aws.iam.Role(
+    's3-ecs-task-role',
 	assume_role_policy=json.dumps({
 		'Version': '2008-10-17',
 		'Statement': [{
@@ -98,7 +99,7 @@ ecs_task_role = aws.iam.Role(
 
 ecs_task_rpa = aws.iam.RolePolicyAttachment(
     'ecs-task-policy',
-	role=ecs_task_role.name,
+	role=ecs_s3_task_role.name,
 	policy_arn='arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess',
 )
 
@@ -120,4 +121,72 @@ workflows_dask_sg = aws.ec2.SecurityGroup(
 		to_port=0,
 		cidr_blocks=['0.0.0.0/0'],
 	)],
+)
+
+
+
+# ======================================================================================================================
+# Prefect Agent Containers
+
+
+# Create an IAM role that can be used by our service's task.
+agent_ecs_execution_role = aws.iam.Role('agent-task-execution-role',
+	assume_role_policy=json.dumps({
+		'Version': '2008-10-17',
+		'Statement': [{
+			'Sid': '',
+			'Effect': 'Allow',
+			'Principal': {
+				'Service': 'ecs-tasks.amazonaws.com'
+			},
+			'Action': 'sts:AssumeRole',
+		}]
+	}),
+)
+
+agent_ecs_execution_policy = aws.iam.RolePolicyAttachment('agent-task-execution-policy',
+	role=agent_task_exec_role.name,
+	policy_arn='arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy',
+)
+
+# TODO: add the secrets in here
+# Spin up service running our container image for running Prefect Agents
+agent_task_definition = aws.ecs.TaskDefinition('app-task',
+    family='agent-ecs-task-definition',
+    cpu='256',
+    memory='512',
+    network_mode='awsvpc',
+    requires_compatibilities=['FARGATE'],
+    execution_role_arn=agent_ecs_execution_role.arn,
+    container_definitions=json.dumps([{
+		'name': 'prefect-agent',
+		'image': 'brontomerus/prefect-agent:aws-github-dask_cp',
+		'portMappings': [{
+			'containerPort': 80,
+			'hostPort': 80,
+			'protocol': 'tcp'
+		}],
+    placement_constraints=[aws.ecs.TaskDefinitionPlacementConstraintArgs(
+        type="memberOf",
+        expression=vpc_azs,
+    )]
+	}])
+)
+
+service = aws.ecs.Service('app-svc',
+	cluster=cluster.arn,
+    desired_count=3,
+    launch_type='FARGATE',
+    task_definition=task_definition.arn,
+    network_configuration=aws.ecs.ServiceNetworkConfigurationArgs(
+		assign_public_ip=True,
+		subnets=default_vpc_subnets.ids,
+		security_groups=[group.id],
+	),
+    load_balancers=[aws.ecs.ServiceLoadBalancerArgs(
+		target_group_arn=atg.arn,
+		container_name='my-app',
+		container_port=80,
+	)],
+    opts=ResourceOptions(depends_on=[wl]),
 )
