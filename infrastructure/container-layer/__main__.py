@@ -161,11 +161,51 @@ agent_task_definition = aws.ecs.TaskDefinition('app-task',
     container_definitions=json.dumps([{
 		'name': 'prefect-agent',
 		'image': 'brontomerus/prefect-agent:aws-github-dask_cp',
-		'portMappings': [{
-			'containerPort': 80,
-			'hostPort': 80,
-			'protocol': 'tcp'
-		}],
+		'portMappings': [
+			{
+				'containerPort': 80,
+				'hostPort': 80,
+				'protocol': 'tcp'
+			}
+		],
+		'environment': [
+			{
+				'name': 'EXTRA_PIP_PACKAGES', 
+				'value': 'pyarrow s3fs boto3'
+			},
+			{
+				'name': 'PREFECT_AGENT_NAME', 
+				'value': 'Dev-Agent'
+			},
+			{
+				'name': 'PREFECT_AGENT', 
+				'value': 'local'
+			},
+			{
+				'name': 'PREFECT_BACKEND', 
+				'value': 'cloud'
+			},
+			{
+				'name': 'LABELS', 
+				'value': '-l dev -l dask'
+			},
+			{
+				'name': 'AWS_DEFAULT_REGION', 
+				'value': 'us-east-2'
+			},
+		],
+		'secrets': [
+			{
+				'name': 'GITHUB_ACCESS_TOKEN',
+				'value': ''
+			},
+			{
+				'name': 'PREFECT_CLOUD_TOKEN',
+				'value': ''
+			}
+		]
+
+	)
     placement_constraints=[aws.ecs.TaskDefinitionPlacementConstraintArgs(
         type="memberOf",
         expression=vpc_azs,
