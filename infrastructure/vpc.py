@@ -1,3 +1,4 @@
+# https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html
 import pulumi
 import pulumi_aws as aws
 
