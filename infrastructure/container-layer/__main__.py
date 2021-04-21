@@ -32,7 +32,7 @@ public_subnets_2 = network_layer.require_output('public_subnet_id_2')
 
 
 # Create an ECS cluster to run a container-based service.
-cluster = aws.ecs.Cluster('ml-workflows')
+cluster = aws.ecs.Cluster("dask-ml-workflows")
 
 
 # IAM Roles/Policies Defined:
@@ -121,112 +121,4 @@ workflows_dask_sg = aws.ec2.SecurityGroup(
 		to_port=0,
 		cidr_blocks=['0.0.0.0/0'],
 	)],
-)
-
-
-
-# ======================================================================================================================
-# Prefect Agent Containers
-
-
-# Create an IAM role that can be used by our service's task.
-agent_ecs_execution_role = aws.iam.Role('agent-task-execution-role',
-	assume_role_policy=json.dumps({
-		'Version': '2008-10-17',
-		'Statement': [{
-			'Sid': '',
-			'Effect': 'Allow',
-			'Principal': {
-				'Service': 'ecs-tasks.amazonaws.com'
-			},
-			'Action': 'sts:AssumeRole',
-		}]
-	}),
-)
-
-agent_ecs_execution_policy = aws.iam.RolePolicyAttachment('agent-task-execution-policy',
-	role=agent_task_exec_role.name,
-	policy_arn='arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy',
-)
-
-# TODO: add the secrets in here
-# Spin up service running our container image for running Prefect Agents
-agent_task_definition = aws.ecs.TaskDefinition('app-task',
-    family='agent-ecs-task-definition',
-    cpu='256',
-    memory='512',
-    network_mode='awsvpc',
-    requires_compatibilities=['FARGATE'],
-    execution_role_arn=agent_ecs_execution_role.arn,
-    container_definitions=json.dumps([{
-		'name': 'prefect-agent',
-		'image': 'brontomerus/prefect-agent:aws-github-dask_cp',
-		'portMappings': [
-			{
-				'containerPort': 80,
-				'hostPort': 80,
-				'protocol': 'tcp'
-			}
-		],
-		'environment': [
-			{
-				'name': 'EXTRA_PIP_PACKAGES', 
-				'value': 'pyarrow s3fs boto3'
-			},
-			{
-				'name': 'PREFECT_AGENT_NAME', 
-				'value': 'Dev-Agent'
-			},
-			{
-				'name': 'PREFECT_AGENT', 
-				'value': 'local'
-			},
-			{
-				'name': 'PREFECT_BACKEND', 
-				'value': 'cloud'
-			},
-			{
-				'name': 'LABELS', 
-				'value': '-l dev -l dask'
-			},
-			{
-				'name': 'AWS_DEFAULT_REGION', 
-				'value': 'us-east-2'
-			},
-		],
-		'secrets': [
-			{
-				'name': 'GITHUB_ACCESS_TOKEN',
-				'value': ''
-			},
-			{
-				'name': 'PREFECT_CLOUD_TOKEN',
-				'value': ''
-			}
-		]
-
-	)
-    placement_constraints=[aws.ecs.TaskDefinitionPlacementConstraintArgs(
-        type="memberOf",
-        expression=vpc_azs,
-    )]
-	}])
-)
-
-service = aws.ecs.Service('app-svc',
-	cluster=cluster.arn,
-    desired_count=3,
-    launch_type='FARGATE',
-    task_definition=task_definition.arn,
-    network_configuration=aws.ecs.ServiceNetworkConfigurationArgs(
-		assign_public_ip=True,
-		subnets=default_vpc_subnets.ids,
-		security_groups=[group.id],
-	),
-    load_balancers=[aws.ecs.ServiceLoadBalancerArgs(
-		target_group_arn=atg.arn,
-		container_name='my-app',
-		container_port=80,
-	)],
-    opts=ResourceOptions(depends_on=[wl]),
 )
