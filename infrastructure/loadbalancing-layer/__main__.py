@@ -1,34 +1,33 @@
 '''An AWS Python Pulumi program'''
 # REF: https://github.com/pulumi/examples/blob/master/aws-py-fargate/__main__.py
-
-import pulumi
 import json
-from pulumi_aws import aws
+import pulumi
+import pulumi_aws as aws
 
 
-
-
+# get configs defined in our yaml files
 config = pulumi.Config()
-
 network_layer_stack = config.require('network-layer-stack')
+pulumi_account = config.require('user-account')
 
 
+# get settings from stack references
+env = pulumi.get_stack()
+network_layer = pulumi.StackReference(f'{pulumi_account}/network-layer/{env}')
 
-# Create an AWS resource (S3 Bucket)
-bucket = aws.s3.Bucket('load-balancer-bucket-')
-
-# Export the name of the bucket
-pulumi.export('bucket_name', bucket.id)
 
 
 # Read back the project VPC and subnets id's that were set up in the network-layer-{env}, which we will use.
-vpc_id = network_layer_stack.require_output('vcp_id')
-private_subnets = network_layer_stack.require_output('private_subnet_ids'))
-public_subnets = network_layer_stack.require_output('public_subnet_ids'))
+vpc_id = network_layer.require_output('vcp_id')
+vpc_azs = network_layer.require_output('vpc_azs')
+private_subnets_1 = network_layer.require_output('private_subnet_id_1')
+private_subnet_2 = network_layer.require_output('private_subnet_id_2')
+public_subnets_1 = network_layer.require_output('public_subnet_id_1')
+public_subnets_2 = network_layer.require_output('public_subnet_id_2')
 
-# un-stringify the lists
-private_subnets = json.loads(private_subnets)
-public_subnets = json.loads(public_subnets)
+# # un-stringify the lists
+# private_subnets = json.loads(private_subnets)
+# public_subnets = json.loads(public_subnets)
 
 
 # TODO: need to add in the security groups for the internal ALB and all that jazz
@@ -41,11 +40,11 @@ internal_alb = aws.lb.LoadBalancer(
     subnet_mappings=[
         aws.lb.LoadBalancerSubnetMappingArgs(
             subnet_id=private_subnet_ids[0],
-            private_ipv4_address='10.0.2.3',
+            private_ipv4_address='10.0.2.5',
         ),
         aws.lb.LoadBalancerSubnetMappingArgs(
             subnet_id=private_subnet_ids[1],
-            private_ipv4_address='10.0.3.3',
+            private_ipv4_address='10.0.3.5',
         ),
     ]
 	subnets=private_subnet_ids,
