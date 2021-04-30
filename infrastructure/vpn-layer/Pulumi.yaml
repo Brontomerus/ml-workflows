@@ -1,0 +1,6 @@
+name: vpn-layer
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: Pulumi program for setting up vpn resources

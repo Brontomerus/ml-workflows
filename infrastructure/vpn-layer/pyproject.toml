@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "vpn-layer"
+version = "0.1.0"
+description = "Pulumi program for setting up vpn resources on aws"
+authors = ["Brontomerus <brandon.donelan@outlook.com>"]
+license = "BSD 3-Clause"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pulumi = "^3.1.0"
+pulumi-aws = "^4.1.0"
+awscli = "^1.19.61"
+boto3 = "^1.17.61"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,5 @@
+config:
+  aws:region: us-east-2
+  vpn-layer:environment: dev
+  vpn-layer:network-layer-stack: dev
+  vpn-layer:user-account: Brontomerus

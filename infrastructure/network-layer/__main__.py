@@ -154,57 +154,6 @@ routetable_private_2_association = aws.ec2.RouteTableAssociation("workflows-priv
 
 
 
-# =====================================================================================
-# VPN
-# =====================================================================================
-
-
-
-
-
-vpn_endpoint = aws.ec2clientvpn.Endpoint("workflows-vpn-endpoint",
-    description="workflows-clientvpn",
-    server_certificate_arn=aws_acm_certificate["cert"]["arn"],
-    client_cidr_block="10.0.0.0/16",
-    authentication_options=[aws.ec2clientvpn.EndpointAuthenticationOptionArgs(
-        type="certificate-authentication",
-        root_certificate_chain_arn=aws_acm_certificate["root_cert"]["arn"],
-    )],
-    connection_log_options=aws.ec2clientvpn.EndpointConnectionLogOptionsArgs(
-        enabled=True,
-        cloudwatch_log_group=aws_cloudwatch_log_group["lg"]["name"],
-        cloudwatch_log_stream=aws_cloudwatch_log_stream["ls"]["name"],
-    ))
-
-vpn_network_association = aws.ec2clientvpn.NetworkAssociation("workflows-vpn-network-assoc",
-    description="workflows-vpn-network-assoc"
-    client_vpn_endpoint_id=vpn_endpoint.id,
-    subnet_id=workflows_private_1.id,
-    # security_groups=[
-    #     aws_security_group["example1"]["id"],
-    #     aws_security_group["example2"]["id"],
-    # ]
-    )
-
-vpn_route = aws.ec2clientvpn.Route("workflows-vpn-route",
-    description="workflows-vpn-route"
-    client_vpn_endpoint_id=vpn_endpoint.id,
-    destination_cidr_block="0.0.0.0/0",
-    target_vpc_subnet_id=vpn_network_association.subnet_id)
-
-vpn_auth_rules = aws.ec2clientvpn.AuthorizationRule("workflows-vpn-auth-rules",
-    description="workflows-vpn-auth-rules"
-    client_vpn_endpoint_id=vpn_endpoint.id,
-    target_network_cidr=workflows_private_1.cidr_block,
-    authorize_all_groups=True)
-
-
-
-
-
-
-
-
 
 
 # =====================================================================================
@@ -220,6 +169,7 @@ pulumi.export("public_subnet_1_id", workflows_public_1.id)
 pulumi.export("public_subnet_2_id", workflows_public_2.id)
 pulumi.export("private_subnet_1_id", workflows_private_1.id)
 pulumi.export("private_subnet_2_id", workflows_private_2.id)
+pulumi.export("private_subnet_1_CIDR", workflows_private_1.cidr_block)
 pulumi.export("subnets", subnets)
 
 pulumi.export("vpc_azs", [az.names[0], az.names[1]])
