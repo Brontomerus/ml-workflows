@@ -19,12 +19,13 @@ network_layer = pulumi.StackReference(f"{pulumi_account}/network-layer/{env}")
 
 
 # Read back the project VPC and subnets id"s that were set up in the network-layer-{env}, which we will use.
-vpc_id = network_layer.require_output("vcp_id")
-vpc_azs = network_layer.require_output("vpc_azs")
-private_subnets_1 = network_layer.require_output("private_subnet_id_1")
-private_subnet_2 = network_layer.require_output("private_subnet_id_2")
-public_subnets_1 = network_layer.require_output("public_subnet_id_1")
-public_subnets_2 = network_layer.require_output("public_subnet_id_2")
+vpc_id = network_layer.require_output('vcp_id')
+vpc_azs = network_layer.require_output('vpc_azs')
+private_subnet_1_id = network_layer.require_output('private_subnet_1_id')
+private_subnet_2_id = network_layer.require_output('private_subnet_2_id')
+public_subnet_1_id = network_layer.require_output('public_subnet_1_id')
+public_subnet_2_id = network_layer.require_output('public_subnet_2_id')
+
 
 # # un-stringify the lists
 # private_subnets = json.loads(private_subnets)
