@@ -41,9 +41,9 @@ pulumi.export('bucket_name', bucket.id)
 
 
 
-acm_certificate = aws.acm.Certificate("workflows-acm-cert" #,
+acm_certificate = aws.acm.Certificate("workflows-acm-cert",
     #domain_name = "brandondonelan.com",
-    #validation_method="DNS"
+    validation_method="EMAIL"
 )
 
 
