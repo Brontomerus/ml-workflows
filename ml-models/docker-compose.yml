@@ -1,0 +1,32 @@
+version: "3.3"
+
+services:
+    scheduler:
+      build:
+        context: ./
+        dockerfile: Dockerfile.dask
+      image: daskdev/dask
+      hostname: dask-scheduler
+      ports:
+        - "8786:8786"
+        - "8787:8787"
+      command: ["dask-scheduler"]
+  
+    worker:
+      build:
+        context: ./
+        dockerfile: Dockerfile.dask
+      image: daskdev/dask
+      hostname: dask-worker
+      command: ["dask-worker", "tcp://scheduler:8786"]
+  
+    notebook:
+      build:
+        context: ./
+        dockerfile: Dockerfile.notebook
+      image: daskdev/dask-notebook
+      hostname: notebook
+      ports:
+        - "8888:8888"
+      environment:
+        - DASK_SCHEDULER_ADDRESS="tcp://scheduler:8786"

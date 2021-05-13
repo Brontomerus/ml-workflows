@@ -20,7 +20,7 @@ cluster = FargateCluster(
     subnets = [os.getenv('AWS_PUBLIC_SUBNET_1')], # use the public subnets from creating them in the IaC
     security_groups = [os.getenv('AWS_DASK_SECURITY_GROUP')],
     scheduler_timeout = '8 minutes', # a bit longer because we're just in "dev" right now
-    image = 'daskdev/dask:2021.2.0', 
+    image = 'daskdev/dask:2021.4.1', 
     # environment = {
     #     'EXTRA_CONDA_PACKAGES': '',
     #     'EXTRA_PIP_PACKAGES': ''

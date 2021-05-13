@@ -52,7 +52,7 @@ with Flow("ML-WORKFLOWS-EXAMPLE") as flow:
     data: dd.DataFrame = ML.inference(data=data)
 
     IO.write_to_S3(bucket_name=bucket_name, folder_name='out', table_name='example_data')
-    
+
 
 
 
@@ -93,4 +93,4 @@ flow.executor = DaskExecutor(
     }
 )
 
-flow.register("deck-of-dice")
+flow.register("ml-workflows")
