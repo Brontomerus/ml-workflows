@@ -24,6 +24,16 @@ This isn't your grandpa's scikit-learn model, but (but sklearn _is_ a fantastic 
 Other ways to build scalable models are certainly out there, namely in Spark ML. Spark ML is easily combined with PySpark to build scalable infrastructure on the ever-popular Apache Spark, and I couldn't talk all about dask/dask-ml without mentioning that alternative. At the end of the day, do what you are the most comfortable with supporting - because systems almost _always_ live much longer at your company than the people who build them.
 
 
+# Getting Started
+There are a few initial requirements to sort out before you get going here. A few basic things you need to set up/install to get rolling:
+
+1. Install [Python](https://www.python.org/downloads/) 3.8+ ... I wrote this using Python 3.8.5 installed locally, but anything in the 3.8.X range should work. Note: This is more relaxed than the Docker environments for Dask, which is _very_ important that you have the same version across those containers and your environment, or random hard-to-debug problems will arise.
+2. Install [Docker](https://docs.docker.com/get-docker/) on your computer.
+3. Install [Poetry](https://python-poetry.org/docs/) on your computer.
+4. Install [Pulumi](https://www.pulumi.com/docs/get-started/aws/begin/), and make an account.
+
+
+
 # Last Remark
 
 While I enjoyed the modeling part of this project, it was perhaps substantially less detailed than the architectural considerations in this project. The modeling aspect really came last in my focus on this project because I really wanted to focus on _where_ the code was running and less on _what_ the code was running on this project. While the ROI and predictive quality of a model will usually come first for building something like this out, I wanted to focus on making this a reusable base-template for future use. Thus, the architectural components and the ease of reproducing those components came first for this project.
