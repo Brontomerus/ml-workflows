@@ -44,23 +44,19 @@ pulumi.export('bucket_name', bucket.id)
 # need to read these in. created using these instructions: https://docs.aws.amazon.com/vpn/latest/clientvpn-admin/client-authentication.html#mutual
 # another helpful video: https://www.youtube.com/watch?v=St8y0xZSn3c
 with open("../../../keys/server.key","rb") as f:
-    private_key = f.read().decode('utf-8').replace('\n','')
+    private_key = f.read().decode('ascii')#.replace('\n','')
 
 with open("../../../keys/server.crt","rb") as f:
-    crt_body = f.read().decode('utf-8').replace('\n','')
+    crt_body = f.read().decode('ascii')#.replace('\n','')
 
 with open("../../../keys/ca.crt","rb") as f:
-    ca_chain = f.read().decode('utf-8').replace('\n','')
-
+    ca_chain = f.read().decode('ascii')#.replace('\n','')
 
 
 acm_certificate = aws.acm.Certificate("workflows-acm-cert",
-    # domain_name = "brandon-donelan.com",
-    certificate_body=private_key,
-    private_key=crt_body,
-    # certificate_chain=ca_chain
-    # validation_method="EMAIL"
-    # ,validation_emails = "brandon.donelan@outlook.com"
+    private_key=private_key,
+    certificate_body=crt_body,
+    certificate_chain=ca_chain
 )
 
 
@@ -72,7 +68,7 @@ vpn_log_stream = aws.cloudwatch.LogStream("workflows-vpn-log-stream",log_group_n
 vpn_endpoint = aws.ec2clientvpn.Endpoint("workflows-vpn-endpoint",
     description="workflows-clientvpn",
     server_certificate_arn=acm_certificate.arn,
-    client_cidr_block="10.0.0.0/16",
+    client_cidr_block="10.5.0.0/20",
     authentication_options=[aws.ec2clientvpn.EndpointAuthenticationOptionArgs(
         type="certificate-authentication",
         root_certificate_chain_arn=acm_certificate.arn
