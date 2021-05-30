@@ -11,6 +11,8 @@ pulumi = "^3.1.0"
 pulumi-aws = "^4.1.0"
 awscli = "^1.19.61"
 boto3 = "^1.17.61"
+cryptography = "^3.4.7"
+pycryptodome = "^3.10.1"
 
 [tool.poetry.dev-dependencies]
 

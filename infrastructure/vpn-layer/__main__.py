@@ -1,9 +1,12 @@
 """An AWS Python Pulumi program"""
 
-import pulumi
 import json
+import os
 import pulumi
 import pulumi_aws as aws
+
+
+
 
 
 # get configs defined in our yaml files
@@ -38,20 +41,29 @@ bucket = aws.s3.Bucket('my-bucket')
 # Export the name of the bucket
 pulumi.export('bucket_name', bucket.id)
 
+# need to read these in. created using these instructions: https://docs.aws.amazon.com/vpn/latest/clientvpn-admin/client-authentication.html#mutual
+# another helpful video: https://www.youtube.com/watch?v=St8y0xZSn3c
+with open("../../../keys/server.key","rb") as f:
+    private_key = f.read().decode('utf-8').replace('\n','')
+
+with open("../../../keys/server.crt","rb") as f:
+    crt_body = f.read().decode('utf-8').replace('\n','')
+
+with open("../../../keys/ca.crt","rb") as f:
+    ca_chain = f.read().decode('utf-8').replace('\n','')
 
 
 
 acm_certificate = aws.acm.Certificate("workflows-acm-cert",
     # domain_name = "brandon-donelan.com",
-    # certificate_body="../../../keys/public.pem",
-    private_key="../../../keys/private.pem"
-    # certificate_chain="../../../workflows-access/ca.crt",
+    certificate_body=private_key,
+    private_key=crt_body,
+    # certificate_chain=ca_chain
     # validation_method="EMAIL"
     # ,validation_emails = "brandon.donelan@outlook.com"
 )
 
 
-# TODO: acm_certificate
 
 # CloudWatch Logs set up:
 vpn_log_group = aws.cloudwatch.LogGroup("workflows-vpn-log-group")
