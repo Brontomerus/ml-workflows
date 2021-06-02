@@ -1,4 +1,4 @@
-# ml-werkflows
+# ml-workflows
 
 A project to provide an easy way to get started building distributed environments for machine learning workflows in AWS using [__Prefect__](https://www.prefect.io/) for dataflow automation capabilities (scheduling, CI/CD, ETL Framework, etc) and [__Dask__](https://docs.dask.org/en/latest/why.html) for a providing distributed compute engine. This work is facilitated by managed python environments using [__Poetry__](https://python-poetry.org/docs/basic-usage/) for package management and [__Pulumi__](https://www.pulumi.com/docs/) for defining the cloud architecture using Infrastructure-as-Code. Further, I leverage [__Dask-CloudProvider__](https://cloudprovider.dask.org/en/latest/) to further add to the IaC capabilities and to easily harness the phenomenal "temporary cluster" approach that I've come to absolutely love for its low-cost but high-performance serverless capabilities.
 
@@ -36,12 +36,14 @@ There are a few initial requirements to sort out before you get going here. A fe
 
 # Last Remark
 
-While I enjoyed the modeling part of this project, it was perhaps substantially less detailed than the architectural considerations in this project. The modeling aspect really came last in my focus on this project because I really wanted to focus on _where_ the code was running and less on _what_ the code was running on this project. While the ROI and predictive quality of a model will usually come first for building something like this out, I wanted to focus on making this a reusable base-template for future use. Thus, the architectural components and the ease of reproducing those components came first for this project.
+One might be inclined to say, "That model is hot garbage, this guy has no idea what he's doing!".
+
+Yes, the actual model is probably some hot garbage and would ultimately be wrong enough that it would lose you money if you were to test its merits in the market. While I enjoyed the modeling part of this project, it was perhaps substantially less detailed than the architectural considerations in this project. The modeling aspect really came last in my focus on this project because I really wanted to focus on _where_ the code was running and less on _what_ the code was running on this project. While the ROI and predictive quality of a model will usually come first for a business when debating whether to build something like this, I wanted to focus on making this a reusable base-template for future use. Thus, the architectural components and the ease of reproducing those components came first for this project, whereas the model(s) that are run on it are destined to change given the exact problem the business is trying to solve.
 
 
 
 # About the Author
 
-Hi, I'm Brandon. I like data analytics in all shapes and sizes.
+Hi, I'm Brandon. I like data science and data analytics in all shapes and sizes. I also like building things, which is how and why I found myself pushing myself to learn all these neat things. I found the Python community, as well as the data science subset of the Python community very welcoming. One thing that has begun to be very clear, is that an often neglected 
 
 
