@@ -25,12 +25,11 @@ private_subnet_2 = network_layer.require_output('private_subnet_id_2')
 public_subnets_1 = network_layer.require_output('public_subnet_id_1')
 public_subnets_2 = network_layer.require_output('public_subnet_id_2')
 
-# # un-stringify the lists
-# private_subnets = json.loads(private_subnets)
-# public_subnets = json.loads(public_subnets)
 
 
 # TODO: need to add in the security groups for the internal ALB and all that jazz
+
+
 
 
 internal_alb = aws.lb.LoadBalancer(
@@ -49,7 +48,8 @@ internal_alb = aws.lb.LoadBalancer(
     ]
 	subnets=private_subnet_ids,
 	# security_groups=,
-	tags={'Name': 'workflows'})
+	tags={'Name': 'workflows'}
+)
 
 
 dummy_target_group = aws.lb.TargetGroup(
@@ -58,6 +58,7 @@ dummy_target_group = aws.lb.TargetGroup(
 	protocol='HTTP',
 	target_type='ip',
 	vpc_id=vpc_id,
+	tags={'Name': 'workflows'}
 )
 
 alb_listener = aws.lb.Listener(
@@ -69,7 +70,14 @@ alb_listener = aws.lb.Listener(
 			type='forward',
 			target_group_arn=dummy_target_group.arn,
 		)],
-	)
+	tags={'Name': 'workflows'}
+)
 
 
 
+
+
+# export for downstream layers
+pulumi.export("vcp_id", workflows.id)
+pulumi.export("public_subnet_1_id", workflows_public_1.id)
+pulumi.export("public_subnet_2_id", workflows_public_2.id)

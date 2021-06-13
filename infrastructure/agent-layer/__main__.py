@@ -160,8 +160,8 @@ agent_ecs_execution_policy = aws.iam.RolePolicy(
 agent_task_definition = aws.ecs.TaskDefinition(
     "agent-task-definition",
     family="agent-ecs-task-definition",
-    cpu="256",
-    memory="512",
+    cpu="512",
+    memory="1024",
     network_mode="awsvpc",
     requires_compatibilities=["FARGATE"],
     execution_role_arn=agent_ecs_execution_role.arn,
@@ -187,7 +187,7 @@ agent_task_definition = aws.ecs.TaskDefinition(
                         "options": {
                             "awslogs-group": "agent-ecs",
                             "awslogs-region": "us-east-2",
-                            "awslogs-stream-prefix": "agent-ecs"
+                            "awslogs-stream-prefix": "agent-ecs-test"
                         }
                     },
                     "environment": [
@@ -215,25 +215,26 @@ agent_task_definition = aws.ecs.TaskDefinition(
                             "name": "AWS_DEFAULT_REGION",
                             "value": "us-east-2"
                         },
-                    ],
-                    "secrets": [
-                        {
-                            "name": "GITHUB_ACCESS_TOKEN",
-                            "valueFrom": f"{args[0]}:github_access_token::",
-                        },
                         {
                             "name": "PREFECT_CLOUD_TOKEN",
-                            "valueFrom": f"{args[0]}:prefect_cloud_token::",
-                        },
-                    ],
+                            "value": os.getenv("PREFECT_CLOUD_TOKEN")
+                        }
+                    ]
+                    # ,
+                    # "secrets": [
+                    #     {
+                    #         "name": "GITHUB_ACCESS_TOKEN",
+                    #         "valueFrom": f"{args[0]}:github_access_token::",
+                    #     },
+                        # {
+                        #     "name": "PREFECT_CLOUD_TOKEN",
+                        #     "valueFrom": f"{args[0]}:prefect_cloud_token::",
+                        # }               
+                    # ],
                 }
             ]
         )
     )
-    # ,placement_constraints=[aws.ecs.TaskDefinitionPlacementConstraintArgs(
-    #         type="memberOf",
-    #         expression=vpc_azs,
-    #     )]
 )
 
 agents_ecs_service = aws.ecs.Service(
@@ -244,8 +245,8 @@ agents_ecs_service = aws.ecs.Service(
     launch_type="FARGATE",
     # iam_role=agent_ecs_execution_role.arn,
     network_configuration=aws.ecs.ServiceNetworkConfigurationArgs(
-        assign_public_ip=False,
-        subnets=[private_subnet_1_id, private_subnet_2_id],
+        assign_public_ip=True,
+        subnets=[public_subnet_1_id],
         security_groups=[agent_security_group.id]
     ),
     # TODO: set up a load balancer here maybe?
@@ -254,12 +255,5 @@ agents_ecs_service = aws.ecs.Service(
     # 	container_name="dev-agent",
     # 	container_port=80
     # )],
-    # FIXME: This shouldn't be a list
-    # placement_constraints=[
-    #     aws.ecs.TaskDefinitionPlacementConstraintArgs(
-    #         type="memberOf",
-    #         expression=vpc_azs
-    #     )
-    # ],
     opts=pulumi.ResourceOptions(depends_on=[agent_ecs_execution_policy])
 )
