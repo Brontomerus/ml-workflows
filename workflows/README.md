@@ -30,7 +30,7 @@ Run Configurations pertain to how our Agents access and run our defined flows.
 
 My choice: **ECS**
 <br>
-
+The reason here should be reasonably obvious given the stack we are working with. This agent gives us the ability to serve our agent directly to the correct environment and executor that we'll be using.
 
 ### Executor
 Executors define your environment. Prefect is fairly reliant on Dask, but this is also where we can do something I personally think is amazing: temporary clusters. The cluster is spun up on demand and automatically retired following execution of the flow - pass or fail.
@@ -38,4 +38,4 @@ Executors define your environment. Prefect is fairly reliant on Dask, but this i
 
 My choice: **DaskExecutor using Dask-CloudProvider**
 <br>
-<br>
+The use of the DaskExecutor was a given, but something that warrants more documentation is the use of Dask-CloudProvider as a means for temporary cluster creation. This is an awesome way to approach the problem at hand, because it allows us some flexibility, but more importantly it saves us cash. This is always #1, because a product that costs too much makes margin that much slimmer. In a data science project, that margin might be fractions of a penny, and if you scale up with a negative margin then you've got some trouble on your hands.
