@@ -40,21 +40,18 @@ public_subnet_2_id = network_layer.require_output("public_subnet_2_id")
 agent_cluster = aws.ecs.Cluster("prefect-agents")
 
 
-agent_secrets = aws.secretsmanager.Secret(
-    "agent-secrets",
+agent_secrets = aws.secretsmanager.Secret("agent-secrets",
     description="Prefect Agent secrets for various credentials for operating the hybrid cloud model"
     # TODO: Set up KMS Key
 )
-agent_secrets_version_1 = aws.secretsmanager.SecretVersion(
-    "agent-secrets-version-1",
+agent_secrets_version_1 = aws.secretsmanager.SecretVersion("agent-secrets-version-1",
     secret_id=agent_secrets.id,
     secret_string=json.dumps(SECRETS),
 )
 
 
 # Create a SecurityGroup that permits unrestricted egress.
-agent_security_group = aws.ec2.SecurityGroup(
-    "agent-sg",
+agent_security_group = aws.ec2.SecurityGroup("agent-sg",
     name="agent-sg",
     vpc_id=vpc_id,
     description="Enable Egress through NAT Gateway & Ingress from Public A",
@@ -102,11 +99,10 @@ agent_security_group = aws.ec2.SecurityGroup(
 
 
 # Create an IAM role that can be used by our service"s task.
-agent_ecs_execution_role = aws.iam.Role(
-    "agent-task-execution-role",
+agent_ecs_execution_role = aws.iam.Role("agent-task-execution-role",
     assume_role_policy=json.dumps(
         {
-            "Version": "2008-10-17",
+            "Version": "2012-10-17",
             "Statement": [
                 {
                     "Sid": "",
@@ -121,8 +117,8 @@ agent_ecs_execution_role = aws.iam.Role(
     ),
 )
 
-agent_ecs_execution_policy = aws.iam.RolePolicy(
-    "agent-ecs-execution-policy",
+# TODO: don't use * for Resource, especially for ssm/secretsmanager
+agent_ecs_execution_policy = aws.iam.RolePolicy("agent-ecs-execution-policy",
     role=agent_ecs_execution_role.id,
     policy=json.dumps(
         {
@@ -136,15 +132,15 @@ agent_ecs_execution_policy = aws.iam.RolePolicy(
                         "ecr:GetDownloadUrlForLayer",
                         "ecr:BatchGetImage",
                         "logs:CreateLogStream",
-                        "logs:PutLogEvents",
+                        "logs:PutLogEvents"
                     ],
                     "Resource": "*",
                 },
                 {
                     "Effect": "Allow",
                     "Action": [
+                        "ssm:GetParameters",
                         "secretsmanager:GetSecretValue",
-
                         "kms:Decrypt"
                     ],
                     "Resource": "*",
@@ -157,8 +153,7 @@ agent_ecs_execution_policy = aws.iam.RolePolicy(
 
 # Spin up service running our container image for running Prefect Agents
 # ref for secrets: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data-secrets.html
-agent_task_definition = aws.ecs.TaskDefinition(
-    "agent-task-definition",
+agent_task_definition = aws.ecs.TaskDefinition("agent-task-definition",
     family="agent-ecs-task-definition",
     cpu="512",
     memory="1024",
@@ -237,16 +232,15 @@ agent_task_definition = aws.ecs.TaskDefinition(
     )
 )
 
-agents_ecs_service = aws.ecs.Service(
-    "agents-ecs-service",
+agents_ecs_service = aws.ecs.Service("agents-ecs-service",
     cluster=agent_cluster.id,
     task_definition=agent_task_definition.arn,
     desired_count=1,
     launch_type="FARGATE",
     # iam_role=agent_ecs_execution_role.arn,
     network_configuration=aws.ecs.ServiceNetworkConfigurationArgs(
-        assign_public_ip=True,
-        subnets=[public_subnet_1_id],
+        assign_public_ip=False,
+        subnets=[private_subnet_1_id],
         security_groups=[agent_security_group.id]
     ),
     # TODO: set up a load balancer here maybe?
