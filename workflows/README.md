@@ -39,3 +39,8 @@ Executors define your environment. Prefect is fairly reliant on Dask, but this i
 My choice: **DaskExecutor using Dask-CloudProvider**
 <br>
 The use of the DaskExecutor was a given, but something that warrants more documentation is the use of Dask-CloudProvider as a means for temporary cluster creation. This is an awesome way to approach the problem at hand, because it allows us some flexibility, but more importantly it saves us cash. This is always #1, because a product that costs too much makes margin that much slimmer. In a data science project, that margin might be fractions of a penny, and if you scale up with a negative margin then you've got some trouble on your hands.
+
+
+# Putting an ML Model to Work
+
+My example workflow is primarily based on putting the Machine Learning model created & serialized in the /ml-models directory into a batch workflow - best for taking that ML model and running loads of upwards of 500 GB through at one time. 
