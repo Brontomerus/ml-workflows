@@ -81,3 +81,28 @@ alb_listener = aws.lb.Listener(
 pulumi.export("vcp_id", workflows.id)
 pulumi.export("public_subnet_1_id", workflows_public_1.id)
 pulumi.export("public_subnet_2_id", workflows_public_2.id)
+
+
+
+
+# # Create a load balancer to listen for HTTP traffic on port 80.
+# alb = aws.lb.LoadBalancer("app-lb",
+# 	security_groups=[group.id],
+# 	subnets=default_vpc_subnets.ids,
+# )
+
+# atg = aws.lb.TargetGroup("app-tg",
+# 	port=80,
+# 	protocol="HTTP",
+# 	target_type="ip",
+# 	vpc_id=default_vpc.id,
+# )
+
+# wl = aws.lb.Listener("web",
+# 	load_balancer_arn=alb.arn,
+# 	port=80,
+# 	default_actions=[aws.lb.ListenerDefaultActionArgs(
+# 		type="forward",
+# 		target_group_arn=atg.arn,
+# 	)],
+# )

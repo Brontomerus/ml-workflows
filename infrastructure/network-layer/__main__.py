@@ -148,6 +148,34 @@ routetable_private_2_association = aws.ec2.RouteTableAssociation(
 )
 
 
+
+# Create a SecurityGroup that permits ingress to public
+agent_security_group = aws.ec2.SecurityGroup("public-sg",
+    name="public-sg",
+    vpc_id=workflows.id,
+    description="Enable Access to Public Subnets",
+    ingress=[
+        aws.ec2.SecurityGroupIngressArgs(
+            description="All Ingress Enabled",
+            protocol=-1,
+            from_port=0,
+            to_port=0,
+            cidr_blocks=['0.0.0.0/0'],
+        )
+	],
+    egress=[
+        aws.ec2.SecurityGroupEgressArgs(
+            description="Egress from Agent ECS Containers to Anywhere",
+            protocol="tcp",
+            from_port=0,
+            to_port=0,
+            cidr_blocks=["0.0.0.0/0"],
+        )
+    ],
+)
+
+
+
 # =====================================================================================
 # Finish Up
 # =====================================================================================
