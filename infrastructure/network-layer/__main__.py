@@ -49,7 +49,7 @@ workflows_public_1 = aws.ec2.Subnet(
     cidr_block=subnets["workflows-public-1"],
     availability_zone=az.names[0],
     map_public_ip_on_launch=True,
-    tags={"Name": "workflows"},
+    tags={"Name": "workflows public A"},
 )
 
 workflows_public_2 = aws.ec2.Subnet(
@@ -58,7 +58,7 @@ workflows_public_2 = aws.ec2.Subnet(
     cidr_block=subnets["workflows-public-2"],
     availability_zone=az.names[1],
     map_public_ip_on_launch=True,
-    tags={"Name": "workflows"},
+    tags={"Name": "workflows public B"},
 )
 
 workflows_private_1 = aws.ec2.Subnet(
@@ -67,7 +67,7 @@ workflows_private_1 = aws.ec2.Subnet(
     cidr_block=subnets["workflows-private-1"],
     availability_zone=az.names[0],
     map_public_ip_on_launch=False,
-    tags={"Name": "workflows"},
+    tags={"Name": "workflows private A"},
 )
 
 workflows_private_2 = aws.ec2.Subnet(
@@ -76,7 +76,7 @@ workflows_private_2 = aws.ec2.Subnet(
     cidr_block=subnets["workflows-private-2"],
     availability_zone=az.names[1],
     map_public_ip_on_launch=False,
-    tags={"Name": "workflows"},
+    tags={"Name": "workflows private B"},
 )
 
 
@@ -150,8 +150,8 @@ routetable_private_2_association = aws.ec2.RouteTableAssociation(
 
 
 # Create a SecurityGroup that permits ingress to public
-agent_security_group = aws.ec2.SecurityGroup("public-sg",
-    name="public-sg",
+private_subnet_security_group = aws.ec2.SecurityGroup("private-subnet-sg",
+    name="private-subnet-sg",
     vpc_id=workflows.id,
     description="Enable Access to Public Subnets",
     ingress=[
@@ -160,7 +160,7 @@ agent_security_group = aws.ec2.SecurityGroup("public-sg",
             protocol=-1,
             from_port=0,
             to_port=0,
-            cidr_blocks=['0.0.0.0/0'],
+            cidr_blocks=["10.0.2.0/24","10.0.3.0/24"],
         )
 	],
     egress=[
@@ -169,7 +169,7 @@ agent_security_group = aws.ec2.SecurityGroup("public-sg",
             protocol="tcp",
             from_port=0,
             to_port=0,
-            cidr_blocks=["0.0.0.0/0"],
+            cidr_blocks=["10.0.2.0/24","10.0.3.0/24"],
         )
     ],
 )
