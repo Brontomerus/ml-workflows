@@ -50,30 +50,48 @@ agent_secrets_version_1 = aws.secretsmanager.SecretVersion("agent-secrets-versio
 )
 
 
-# Create a SecurityGroup that permits unrestricted egress.
-agent_security_group = aws.ec2.SecurityGroup("agent-sg",
-    name="agent-sg",
-    vpc_id=vpc_id,
-    description="Enable Egress through NAT Gateway & Ingress from Public A",
-    ingress=[
-        aws.ec2.SecurityGroupIngressArgs(
-            description="Ingress from Private A, B & Public A",
-            protocol='tcp',
-            from_port=443,
-            to_port=443,
-            cidr_blocks=['10.0.0.0/24','10.2.0.0/24', '10.3.0.0/24'],
-        )
-	],
-    egress=[
-        aws.ec2.SecurityGroupEgressArgs(
-            description="Egress from Agent ECS Containers to Anywhere",
-            protocol="tcp",
-            from_port=0,
-            to_port=0,
-            cidr_blocks=["0.0.0.0/0"],
-        )
-    ],
+
+# Create a SecurityGroup that permits HTTP ingress and unrestricted egress.
+agent_sg = aws.ec2.SecurityGroup('agent-sg',
+	vpc_id=vpc_id,
+	description='Enable HTTP access',
+	ingress=[aws.ec2.SecurityGroupIngressArgs(
+		protocol='tcp',
+		from_port=80,
+		to_port=80,
+		cidr_blocks=['0.0.0.0/0'],
+	)],
+  	egress=[aws.ec2.SecurityGroupEgressArgs(
+		protocol='-1',
+		from_port=0,
+		to_port=0,
+		cidr_blocks=['0.0.0.0/0'],
+	)],
 )
+
+# Create a load balancer to listen for HTTP traffic on port 80.
+agent_alb = aws.lb.LoadBalancer('agent-lb',
+	security_groups=[agent_sg.id],
+	subnets=[private_subnet_1_id, private_subnet_2_id],
+)
+
+agent_atg = aws.lb.TargetGroup('agent-tg',
+	port=80,
+	protocol='HTTP',
+	target_type='ip',
+	vpc_id=vpc_id,
+)
+
+agent_wl = aws.lb.Listener('agent-wl',
+	load_balancer_arn=agent_alb.arn,
+	port=80,
+	default_actions=[aws.lb.ListenerDefaultActionArgs(
+		type='forward',
+		target_group_arn=agent_atg.arn,
+	)],
+)
+
+
 
 
 
@@ -96,6 +114,7 @@ agent_ecs_execution_role = aws.iam.Role("agent-task-execution-role",
     ),
 )
 
+
 # TODO: don't use * for Resource, especially for ssm/secretsmanager
 agent_ecs_execution_policy = aws.iam.RolePolicy("agent-ecs-execution-policy",
     role=agent_ecs_execution_role.id,
@@ -106,10 +125,6 @@ agent_ecs_execution_policy = aws.iam.RolePolicy("agent-ecs-execution-policy",
                 {
                     "Effect": "Allow",
                     "Action": [
-                        "ecr:GetAuthorizationToken",
-                        "ecr:BatchCheckLayerAvailability",
-                        "ecr:GetDownloadUrlForLayer",
-                        "ecr:BatchGetImage",
                         "logs:CreateLogStream",
                         "logs:PutLogEvents"
                     ],
@@ -129,6 +144,21 @@ agent_ecs_execution_policy = aws.iam.RolePolicy("agent-ecs-execution-policy",
     ),
 )
 
+agent_rpa = aws.iam.RolePolicyAttachment('agent-task-exec-policy',
+	role=agent_ecs_execution_role.name,
+	policy_arn='arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy',
+)
+
+# Create a log group to store ECS Logs
+agent_log_group = aws.cloudwatch.LogGroup("agent-ecs", 
+    name="agent-ecs",
+    retention_in_days=30,
+    tags={
+        "Application": "agent-layer",
+        "Environment": "dev",
+    }
+)
+
 
 # Spin up service running our container image for running Prefect Agents
 # ref for secrets: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data-secrets.html
@@ -140,14 +170,14 @@ agent_task_definition = aws.ecs.TaskDefinition("agent-task-definition",
     requires_compatibilities=["FARGATE"],
     execution_role_arn=agent_ecs_execution_role.arn,
     container_definitions=pulumi.Output.all(
-        agent_secrets.arn
+        secrets = agent_secrets.arn,
+        log_group = agent_log_group.name
     ).apply(
             lambda args:
         json.dumps(
             [
                 {
                     "name": "prefect-agent",
-                    "user": "agentuser",
                     "image": "brontomerus/prefect-agent:aws-github-dask_cp",
                     "portMappings": [
                         {
@@ -159,7 +189,7 @@ agent_task_definition = aws.ecs.TaskDefinition("agent-task-definition",
                     "logConfiguration": {
                         "logDriver": "awslogs",
                         "options": {
-                            "awslogs-group": "agent-ecs",
+                            "awslogs-group": f"{args['log_group']}",
                             "awslogs-region": "us-east-2",
                             "awslogs-stream-prefix": "agent-ecs-test"
                         }
@@ -193,23 +223,23 @@ agent_task_definition = aws.ecs.TaskDefinition("agent-task-definition",
                             "name": "PREFECT_CLOUD_TOKEN",
                             "value": os.getenv("PREFECT_CLOUD_TOKEN")
                         }
-                    ]
-                    # ,
-                    # "secrets": [
-                    #     {
-                    #         "name": "GITHUB_ACCESS_TOKEN",
-                    #         "valueFrom": f"{args[0]}:github_access_token::",
-                    #     },
-                        # {
-                        #     "name": "PREFECT_CLOUD_TOKEN",
-                        #     "valueFrom": f"{args[0]}:prefect_cloud_token::",
-                        # }               
-                    # ],
+                    ],
+                    "secrets": [
+                        {
+                            "name": "GITHUB_ACCESS_TOKEN",
+                            "valueFrom": f"{args['secrets']}:github_access_token::",
+                        },
+                        {
+                            "name": "PREFECT_CLOUD_TOKEN",
+                            "valueFrom": f"{args['secrets']}:prefect_cloud_token::",
+                        }               
+                    ],
                 }
             ]
         )
     )
 )
+
 
 agents_ecs_service = aws.ecs.Service("agents-ecs-service",
     cluster=agent_cluster.id,
@@ -219,14 +249,14 @@ agents_ecs_service = aws.ecs.Service("agents-ecs-service",
     # iam_role=agent_ecs_execution_role.arn,
     network_configuration=aws.ecs.ServiceNetworkConfigurationArgs(
         assign_public_ip=False,
-        subnets=[private_subnet_1_id],
-        security_groups=[agent_security_group.id]
+        subnets=[private_subnet_1_id, private_subnet_2_id],
+        security_groups=[agent_sg.id]
     ),
     # TODO: set up a load balancer here maybe?
-    # load_balancers=[aws.ecs.ServiceLoadBalancerArgs(
-    # 	target_group_arn=aws_lb_target_group.arn,
-    # 	container_name="dev-agent",
-    # 	container_port=80
-    # )],
-    opts=pulumi.ResourceOptions(depends_on=[agent_ecs_execution_policy])
+    load_balancers=[aws.ecs.ServiceLoadBalancerArgs(
+		target_group_arn=agent_atg.arn,
+		container_name='prefect-agent',
+		container_port=80,
+	)],
+    opts=pulumi.ResourceOptions(depends_on=[agent_wl]),
 )
