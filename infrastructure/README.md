@@ -9,6 +9,10 @@ There are 5 main layers in the stack. They are listed in order of creation, as t
 4. **Container Layer** (container-layer/)
 5. **Agent Layer** (agent-layer/)
 
+<br>
+This architecture works great for the system I'm building here, because it allows for flexibility and reusablility when it comes to certain components. By adjusting the scripts, I can (and will) launch prefect agents to launch either dev or prod workflows, which enhances my control over the environment at the same time as allowing me to limit the need for needlessly replicating services and clusters in separate, isolated environments.
+
+
 ### Network Layer
 The network layer defines the VPC that will house our environment. This layer contains the logic for our network and much of the basic security that underlies the rest of the resources to come. It includes things like public subnets, private subnets, NAT Gateways, Internet Gateways, Security Groups, and routing tables. Think of it as the base layer of our architecture, and will serve as the main building block which will be referenced in later stacks.
 
