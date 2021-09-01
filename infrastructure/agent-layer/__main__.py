@@ -6,6 +6,11 @@ import os
 import pulumi
 import pulumi_aws as aws
 
+if os.getenv("PREFECT_CLOUD_TOKEN") == None:
+    print("WAIT! YOU NEED TO export PREFECT_CLOUD_TOKEN=...")
+if os.getenv("GITHUB_ACCESS_TOKEN") == None:
+    print("WAIT! YOU NEED TO export GITHUB_ACCESS_TOKEN=...")
+    
 SECRETS = {
     "prefect_cloud_token": os.getenv("PREFECT_CLOUD_TOKEN"),
     "github_access_token": os.getenv("GITHUB_ACCESS_TOKEN"),
