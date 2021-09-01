@@ -178,7 +178,7 @@ agent_task_definition = aws.ecs.TaskDefinition("agent-task-definition",
             [
                 {
                     "name": "prefect-agent",
-                    "image": "brontomerus/prefect-agent:aws-github-dask_cp",
+                    "image": "brontomerus/prefect-agent:latest",
                     "portMappings": [
                         {
                             "containerPort": 80,
@@ -201,7 +201,7 @@ agent_task_definition = aws.ecs.TaskDefinition("agent-task-definition",
                         },
                         {
                             "name": "PREFECT_AGENT_NAME", 
-                            "value": "ml-workflows-DEV-Agent"
+                            "value": "ml-workflows-dev"
                         },
                         {
                             "name": "PREFECT_AGENT",
