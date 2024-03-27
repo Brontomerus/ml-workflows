@@ -1,0 +1,13 @@
+-- Databricks notebook source
+CREATE WIDGET TEXT LOCATION DEFAULT "";
+CREATE WIDGET TEXT TBL DEFAULT "";
+
+-- COMMAND ----------
+
+DROP TABLE IF EXISTS wrangled.raw.${TBL};
+
+-- COMMAND ----------
+
+CREATE TABLE wrangled.raw.${TBL}
+USING PARQUET
+LOCATION '${LOCATION}';

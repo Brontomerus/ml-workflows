@@ -109,6 +109,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+poetry.lock
 
 # vscode settings
 .vscode
@@ -147,3 +148,17 @@ env/*
 # pulumi-specific
 *.pyc
 venv/
+
+
+# Terraform ignore
+*.env
+/.terraform
+*.tfvars
+
+# logs
+*.log
+
+# Directories
+.terraform/
+.vagrant/
+tterraform/

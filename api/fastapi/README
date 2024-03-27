@@ -1,0 +1,27 @@
+This is an api that will operate a few models pertaining to football.
+
+#1  -   % chance the field goal is good
+#2  -   Run or pass
+#3  -   Betting against the spread
+#4  -   stadium arrests
+
+
+
+app
+├── api               - api routes + endpoint. (blueprints in flask)
+│   └── routes        - controllers for the routes and handling requests
+├── core              - application configuration, startup events, logging.
+│   ├── config        - config.py file is set here
+│   ├── db            - db set up.
+│   ├── event_handler - the main intialization point for the application components.
+│   ├── logger        - logging initialized here.
+│   ├── migrations    - manually written alembic migrations that arent written yet.
+│   ├── messages      - error handling messages
+│   └── security      - OAuth2 setup
+│   
+├── models            - pydantic models for this application.
+│   ├── payload       - used for the api documentation and general RESTful application
+│   └── prediction    - schemas used for predictive model
+├── services          - load and execute model. Also operate Lambda function connectibility.
+└── main.py           - FastAPI application creation and configuration.
+
