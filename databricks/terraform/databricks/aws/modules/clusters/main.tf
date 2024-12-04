@@ -45,7 +45,7 @@ resource "databricks_cluster" "unity_autoscaling_admin" {
   autotermination_minutes   = 15
   num_workers               = 2
   data_security_mode        = "SINGLE_USER"
-  single_user_name          = "brandon.donelan@outlook.com"
+  single_user_name          = "brandon.donelan.aws@gmail.com"
   autoscale {
     min_workers = 0
     max_workers = 4
@@ -100,7 +100,7 @@ resource "databricks_cluster" "unity_single_node_admin" {
     zone_id                 = "auto"
   }
   data_security_mode = "SINGLE_USER"
-  single_user_name   = "brandon.donelan@outlook.com"
+  single_user_name   = "brandon.donelan.aws@gmail.com"
   spark_conf = {
     # Single-node
     "spark.databricks.cluster.profile" : "singleNode"

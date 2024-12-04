@@ -4,7 +4,7 @@ data "aws_iam_policy_document" "passrole_for_unity_catalog" {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
     principals {
-      identifiers = ["arn:aws:iam::${var.aws_account_id_databricks}:role/unity-catalog-prod-UCMasterRole-${var.unity_account_policy_code}"]
+      identifiers = ["arn:aws:iam::${var.aws_account_id}:role/unity-catalog-UCMasterRole"]
       type        = "AWS"
     }
     condition {
@@ -29,11 +29,31 @@ data "aws_iam_policy_document" "passrole_for_unity_catalog" {
   }
 }
 
-resource "aws_iam_role" "unity_catalog_role" {
-  name  = "${local.prefix}-unitycatalog"
-  assume_role_policy = data.aws_iam_policy_document.passrole_for_unity_catalog.json
+// Required, in case https://docs.databricks.com/data/databricks-datasets.html are needed
+resource "aws_iam_policy" "sample_data" {
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "${local.prefix}-databricks-sample-data"
+    Statement = [
+      {
+        "Action" : [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ],
+        "Resource" : [
+          "arn:aws:s3:::databricks-datasets-oregon/*",
+          "arn:aws:s3:::databricks-datasets-oregon"
+        ],
+        "Effect" : "Allow"
+      }
+    ]
+  })
+  tags = merge(var.tags, {
+    Name = "${local.prefix}-unity-catalog IAM policy"
+  })
 }
-
 
 resource "aws_iam_role_policy" "unity_catalog" {
   name   = "${local.prefix}-unitycatalog-policy"
@@ -68,4 +88,10 @@ resource "aws_iam_role_policy" "unity_catalog" {
     }
     ]
   })
+}
+
+resource "aws_iam_role" "unity_catalog_role" {
+  name  = "${local.prefix}-unitycatalog"
+  assume_role_policy = data.aws_iam_policy_document.passrole_for_unity_catalog.json
+  managed_policy_arns = [aws_iam_policy.sample_data.arn]
 }

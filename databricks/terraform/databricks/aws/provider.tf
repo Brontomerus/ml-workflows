@@ -24,15 +24,16 @@ provider "aws" {
 provider "databricks" {
   alias     = "mws"
   host      = "https://accounts.cloud.databricks.com"
-  username  = var.databricks_account_username
-  password  = var.databricks_account_password
-  auth_type =  "basic"
+  client_id     = var.databricks_service_principle_client_id
+  client_secret = var.databricks_service_principle_client_secret
+  account_id    = var.databricks_account_id
 }
+
 
 provider "databricks" {
   alias     = "created_workspace"
   host      = module.databricks_mws_workspace.workspace_url
-  username  = var.databricks_account_username
-  password  = var.databricks_account_password
-  auth_type =  "basic"
+  client_id     = var.databricks_service_principle_client_id
+  client_secret = var.databricks_service_principle_client_secret
+  account_id    = var.databricks_account_id
 }

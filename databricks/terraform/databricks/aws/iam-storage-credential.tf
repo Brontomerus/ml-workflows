@@ -4,7 +4,7 @@ data "aws_iam_policy_document" "passrole_for_storage_credential" {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
     principals {
-      identifiers = ["arn:aws:iam::${var.aws_account_id_databricks}:role/unity-catalog-prod-UCMasterRole-${var.unity_account_policy_code}"]
+      identifiers = ["arn:aws:iam::${var.aws_account_id}:role/unity-catalog-UCMasterRole"]
       type        = "AWS"
     }
     condition {
@@ -29,13 +29,6 @@ data "aws_iam_policy_document" "passrole_for_storage_credential" {
     }
   }
 }
-
-
-resource "aws_iam_role" "storage_credential_role" {
-  name  = "${local.prefix}-storagecredential"
-  assume_role_policy = data.aws_iam_policy_document.passrole_for_storage_credential.json
-}
-
 
 resource "aws_iam_role_policy" "storage_credential_policy" {
   name   = "${local.prefix}-storagecredential-policy"
@@ -84,5 +77,10 @@ resource "aws_iam_role_policy" "storage_credential_policy" {
       }
     ]
   })
+}
+
+resource "aws_iam_role" "storage_credential_role" {
+  name  = "${local.prefix}-storagecredential"
+  assume_role_policy = data.aws_iam_policy_document.passrole_for_storage_credential.json
 }
 

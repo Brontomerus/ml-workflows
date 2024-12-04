@@ -15,7 +15,7 @@ resource "aws_s3_bucket_acl" "root_bucket_acls" {
 resource "aws_s3_bucket_versioning" "root_bucket_versioning" {
   bucket        =  aws_s3_bucket.root_storage_bucket.id
   versioning_configuration {
-    status      = "Enabled"
+    status      = "Disabled"
   }
 }
 
@@ -46,6 +46,8 @@ resource "aws_s3_bucket_policy" "root_bucket_policy" {
   policy        = data.databricks_aws_bucket_policy.this.json
   depends_on    = [aws_s3_bucket_public_access_block.root_storage_bucket]
 }
+
+
 
 # Unity Catalog S3
 resource "aws_s3_bucket" "unity_catalog_bucket" {
@@ -86,6 +88,8 @@ resource "aws_s3_bucket_public_access_block" "unity_catalog" {
   depends_on              = [aws_s3_bucket.unity_catalog_bucket]
 }
 
+
+
 # External Tables: Curated
 resource "aws_s3_bucket" "external_curated" {
   bucket        = var.curated_data_bucket
@@ -100,12 +104,12 @@ resource "aws_s3_bucket_acl" "external_curated_acls" {
   acl           = "private"
 }
 
-# resource "aws_s3_bucket_versioning" "external_curated_versioning" {
-#   bucket        =  aws_s3_bucket.external_curated.id
-#   versioning_configuration {
-#     status      = "Enabled"
-#   }
-# }
+resource "aws_s3_bucket_versioning" "external_curated_versioning" {
+  bucket        =  aws_s3_bucket.external_curated.id
+  versioning_configuration {
+    status      = "Disabled"
+  }
+}
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "external_curated" {
   bucket        = aws_s3_bucket.external_curated.bucket
@@ -137,10 +141,7 @@ resource "aws_s3_bucket_policy" "external_curated_policy" {
 
 
 
-
-
-
-# External Tables: Wrang;ed
+# External Tables: Wrangled
 resource "aws_s3_bucket" "external_wrangled" {
   bucket        = var.wrangled_data_bucket
   force_destroy = true
@@ -154,12 +155,12 @@ resource "aws_s3_bucket_acl" "external_wrangled_acls" {
   acl           = "private"
 }
 
-# resource "aws_s3_bucket_versioning" "external_wrangled_versioning" {
-#   bucket        =  aws_s3_bucket.external_wrangled.id
-#   versioning_configuration {
-#     status      = "Enabled"
-#   }
-# }
+resource "aws_s3_bucket_versioning" "external_wrangled_versioning" {
+  bucket        =  aws_s3_bucket.external_wrangled.id
+  versioning_configuration {
+    status      = "Disabled"
+  }
+}
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "external_wrangled" {
   bucket        = aws_s3_bucket.external_wrangled.bucket

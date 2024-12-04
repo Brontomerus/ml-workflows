@@ -49,22 +49,28 @@ The Databricks Terraform can be found in `terraform/databricks/aws/*`, and will 
 You will need to complete these steps prior to continuing, else you will be unable to execute the Terraform properly.
 
 ### 1. Setup databricks-cli:
-You will need a python environment set up for this. If you don't know how thats done then oh boy are you up a creek without a paddle. More information can be found here: https://docs.databricks.com/dev-tools/cli/index.html#set-up-the-cli
+You will need a python environment set up for this. If you don't know how thats done then oh boy are you up a creek without a paddle. More information can be found here: https://docs.databricks.com/en/dev-tools/cli/install.html
+
+NEW:
 ```bash
-pip install databricks-cli
+sudo curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sudo sh
+sudo databricks -v
 ```
 
-### 2. Get a Databricks Access Token:
-More information can be found here: https://docs.databricks.com/dev-tools/auth.html#personal-access-tokens-for-users
 
+### 2. Get a Databricks Access Token:
+More information can be found here: https://docs.databricks.com/dev-tools/auth.html#personal-access-tokens-for-users / https://docs.databricks.com/en/dev-tools/cli/authentication.html
+
+NEW:
 ```bash
-databricks configure --token
+sudo databricks configure --token
 ```
 
 Test whether it worked:
 ```bash
 databricks workspace ls /Users/
 ```
+
 
 ## variables.tfvars
 This files will not appear if you cloned the repository from the remote origin due to the .gitignore file, so you will need to create this from scratch. Please Copy/Paste the following and fill the information out prior to continuing:
@@ -73,6 +79,8 @@ This files will not appear if you cloned the repository from the remote origin d
 databricks_account_username = ""
 databricks_account_password = ""
 databricks_account_id = ""
+databricks_service_principle_client_id = ""
+databricks_service_principle_client_secret = ""
 resource_owner = ""
 resource_prefix = ""
 
@@ -106,6 +114,8 @@ databricks_ds_users = ["",...]
 databricks_da_users = ["",""]
 
 ```
+
+databricks_service_principle_client_id and databricks_service_principle_client_secret are used for authentication via the databricks provider in terraform. These values come from the service principle set up in the Databricks admin console, and can be used for both the account level and the workspace level auth. Please see this link for more info, as this has since changed from the original project setup: https://registry.terraform.io/providers/databricks/databricks/latest/docs
 
 ## Executing Terraform
 
